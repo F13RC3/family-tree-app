@@ -24,6 +24,7 @@
 - [x] NativeWind + Tailwind configured
 - [x] Auth screens (signin/signup)
 - [x] Member CRUD (MemberForm, MemberListScreen)
+- [x] Relationship linking (RelationshipScreen)
 - [x] TreeVisualizer component (Skia)
 - [x] Supabase schema (`supabase/schema.sql`) with RLS, triggers, indexes
 
