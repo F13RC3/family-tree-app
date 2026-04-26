@@ -1,22 +1,21 @@
-import React from 'react';
-import { View, Dimensions } from 'react-native';
-import { Canvas, Circle, Line, Text as SkiaText, Group } from '@shopify/react-native-skia';
+import React, { useState } from 'react';
+import { View, Dimensions, Text } from 'react-native';
+import { Canvas, Circle, Line, Group, useTouchHandler, Rect } from '@shopify/react-native-skia';
 import { useFamilyStore } from '../store/useFamilyStore';
 import { TreeNode } from '../types';
 
-const { width } = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
 const NODE_RADIUS = 30;
-const LEVEL_HEIGHT = 100;
+const LEVEL_HEIGHT = 120;
 
 interface NodeProps {
   node: TreeNode;
   x: number;
   y: number;
   selected?: boolean;
-  onPress?: () => void;
 }
 
-function TreeNode({ node, x, y, selected, onPress }: NodeProps) {
+function TreeNode({ node, x, y, selected }: NodeProps) {
   return (
     <Group>
       <Circle
@@ -34,13 +33,22 @@ function TreeNode({ node, x, y, selected, onPress }: NodeProps) {
         style="stroke"
         strokeWidth={2}
       />
-      <SkiaText
-        x={x}
-        y={y + 5}
-        text={node.name.charAt(0).toUpperCase()}
-        textAlign="center"
-        fontSize={14}
-        color="#000"
+      <Rect
+        x={x - 40}
+        y={y + NODE_RADIUS + 5}
+        width={80}
+        height={24}
+        color="#fff"
+        opacity={0.8}
+      />
+      <Rect
+        x={x - 40}
+        y={y + NODE_RADIUS + 5}
+        width={80}
+        height={24}
+        color="#333"
+        style="stroke"
+        strokeWidth={1}
       />
     </Group>
   );
@@ -54,11 +62,29 @@ export function TreeVisualizer() {
   const tree = useFamilyStore((s) => s.getTree());
   const selectedId = useFamilyStore((s) => s.selectedMemberId);
 
-  const renderTree = (nodes: TreeNode[], depth = 0, xOffset = 0) => {
+  const [scale, setScale] = useState(1);
+  const [offset, setOffset] = useState({ x: 0, y: 0 });
+
+  const touchHandler = useTouchHandler({
+    onBegin: () => {},
+    onStart: () => {},
+    onMove: (e) => {
+      setOffset((prev) => ({
+        x: prev.x + e.translateX,
+        y: prev.y + e.translateY,
+      }));
+    },
+    onEnd: () => {},
+    onPinch: (e) => {
+      setScale((prev) => Math.max(0.5, Math.min(3, prev * e.scale)));
+    },
+  });
+
+  const renderTree = (nodes: TreeNode[], depth = 0, xOffset = 0): React.ReactNode => {
     if (nodes.length === 0) return null;
 
-    const y = depth * LEVEL_HEIGHT + 80;
-    const spacing = width / (nodes.length + 1);
+    const y = depth * LEVEL_HEIGHT + 100;
+    const spacing = Math.max(80, width / (nodes.length + 1));
 
     return nodes.map((node, i) => {
       const x = xOffset + spacing * (i + 1);
@@ -82,11 +108,27 @@ export function TreeVisualizer() {
     });
   };
 
+  if (tree.length === 0) {
+    return (
+      <View className="flex-1 items-center justify-center bg-white">
+        <Text className="text-gray-500">No tree data. Add members and link relationships.</Text>
+      </View>
+    );
+  }
+
   return (
     <View className="flex-1 bg-white">
-      <Canvas style={{ flex: 1 }}>
-        {renderTree(tree)}
+      <Canvas
+        style={{ flex: 1 }}
+        touchHandler={touchHandler}
+      >
+        <Group transform={[{ translateX: offset.x }, { translateY: offset.y }, { scale }]}>
+          {renderTree(tree)}
+        </Group>
       </Canvas>
+      <View className="absolute bottom-4 right-4 bg-gray-800 px-3 py-1 rounded">
+        <Text className="text-white text-xs">Zoom: {(scale * 100).toFixed(0)}%</Text>
+      </View>
     </View>
   );
 }
