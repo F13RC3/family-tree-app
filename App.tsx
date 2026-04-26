@@ -4,10 +4,11 @@ import { AuthScreen } from './src/screens/AuthScreen';
 import { MemberForm } from './src/screens/MemberForm';
 import { MemberListScreen } from './src/screens/MemberListScreen';
 import { TreeVisualizer } from './src/components/TreeVisualizer';
+import { RelationshipScreen } from './src/screens/RelationshipScreen';
 import { supabase } from './src/services/supabase';
 import { Session } from '@supabase/supabase-js';
 
-type Tab = 'list' | 'add' | 'tree';
+type Tab = 'list' | 'add' | 'rel' | 'tree';
 
 export default function App() {
   const [session, setSession] = useState<Session | null>(null);
@@ -50,14 +51,16 @@ export default function App() {
         <Button title="Sign Out" onPress={handleSignOut} />
       </View>
 
-      <View className="flex-row border-b border-gray-200">
+      <View className="flex-row flex-wrap border-b border-gray-200">
         <Button title="Members" onPress={() => setTab('list')} />
         <Button title="Add" onPress={() => setTab('add')} />
+        <Button title="Link" onPress={() => setTab('rel')} />
         <Button title="Tree" onPress={() => setTab('tree')} />
       </View>
 
       {tab === 'list' && <MemberListScreen />}
       {tab === 'add' && <MemberForm />}
+      {tab === 'rel' && <RelationshipScreen />}
       {tab === 'tree' && <TreeVisualizer />}
     </View>
   );
