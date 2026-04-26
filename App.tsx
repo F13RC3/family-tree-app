@@ -3,10 +3,11 @@ import { ActivityIndicator, View, Text, Button } from 'react-native';
 import { AuthScreen } from './src/screens/AuthScreen';
 import { MemberForm } from './src/screens/MemberForm';
 import { MemberListScreen } from './src/screens/MemberListScreen';
+import { TreeVisualizer } from './src/components/TreeVisualizer';
 import { supabase } from './src/services/supabase';
 import { Session } from '@supabase/supabase-js';
 
-type Tab = 'list' | 'add';
+type Tab = 'list' | 'add' | 'tree';
 
 export default function App() {
   const [session, setSession] = useState<Session | null>(null);
@@ -51,10 +52,13 @@ export default function App() {
 
       <View className="flex-row border-b border-gray-200">
         <Button title="Members" onPress={() => setTab('list')} />
-        <Button title="Add Member" onPress={() => setTab('add')} />
+        <Button title="Add" onPress={() => setTab('add')} />
+        <Button title="Tree" onPress={() => setTab('tree')} />
       </View>
 
-      {tab === 'list' ? <MemberListScreen /> : <MemberForm />}
+      {tab === 'list' && <MemberListScreen />}
+      {tab === 'add' && <MemberForm />}
+      {tab === 'tree' && <TreeVisualizer />}
     </View>
   );
 }
