@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { FamilyMember, Relationship, TreeNode } from '../types';
+import { MemberAPI, RelationshipAPI } from '../services/supabase';
 
 interface FamilyState {
   members: FamilyMember[];
@@ -20,6 +21,9 @@ interface FamilyState {
   // Tree helpers
   getTree: () => TreeNode[];
   getMember: (id: string) => FamilyMember | undefined;
+
+  // Sync with Supabase
+  loadFromSupabase: (userId: string) => Promise<void>;
 }
 
 export const useFamilyStore = create<FamilyState>((set, get) => ({
@@ -97,5 +101,17 @@ export const useFamilyStore = create<FamilyState>((set, get) => ({
 
   getMember: (id) => {
     return get().members.find((m) => m.id === id);
+  },
+
+  loadFromSupabase: async (userId: string) => {
+    try {
+      const [members, relationships] = await Promise.all([
+        MemberAPI.getAll(userId),
+        RelationshipAPI.getByUser(userId),
+      ]);
+      set({ members, relationships });
+    } catch (err) {
+      console.error('Failed to load from Supabase:', err);
+    }
   },
 }));

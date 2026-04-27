@@ -11,8 +11,8 @@ interface Props {
 }
 
 export function MemberForm({ onSuccess }: Props) {
-  const session = useFamilyStore((s) => s.selectedMemberId);
   const addMember = useFamilyStore((s) => s.addMember);
+  const loadFromSupabase = useFamilyStore((s) => s.loadFromSupabase);
 
   const [name, setName] = useState('');
   const [dob, setDob] = useState('');
@@ -40,6 +40,7 @@ export function MemberForm({ onSuccess }: Props) {
       });
 
       addMember(member);
+      await loadFromSupabase(user.id);
       setName('');
       setDob('');
       setBio('');

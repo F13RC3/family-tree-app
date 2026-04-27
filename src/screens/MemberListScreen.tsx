@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { View, FlatList, Text, Button, StyleSheet, ActivityIndicator, Alert } from 'react-native';
 import { useFamilyStore } from '../store/useFamilyStore';
-import { MemberAPI } from '../services/supabase';
 import { supabase } from '../services/supabase';
-import { FamilyMember } from '../types';
 
 export function MemberListScreen() {
   const members = useFamilyStore((s) => s.members);
-  const setMembers = useFamilyStore((s) => s.setMembers);
+  const loadFromSupabase = useFamilyStore((s) => s.loadFromSupabase);
   const deleteMember = useFamilyStore((s) => s.deleteMember);
   const setSelectedMember = useFamilyStore((s) => s.setSelectedMember);
 
@@ -22,8 +20,7 @@ export function MemberListScreen() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const data = await MemberAPI.getAll(user.id);
-      setMembers(data);
+      await loadFromSupabase(user.id);
     } catch (err) {
       console.error('Load failed:', err);
     } finally {
@@ -53,9 +50,17 @@ export function MemberListScreen() {
     return <ActivityIndicator size="large" className="mt-10" />;
   }
 
+  const handleRefresh = () => {
+    setLoading(true);
+    loadMembers();
+  };
+
   return (
     <View className="flex-1 p-4 bg-white">
-      <Text className="text-lg font-bold mb-4">Family Members</Text>
+      <View className="flex-row justify-between items-center mb-4">
+        <Text className="text-lg font-bold">Family Members</Text>
+        <Button title="Refresh" onPress={handleRefresh} />
+      </View>
 
       {members.length === 0 ? (
         <Text className="text-gray-500 text-center mt-10">No members yet. Add one!</Text>

@@ -10,6 +10,7 @@ export function RelationshipScreen() {
   const members = useFamilyStore((s) => s.members);
   const addRelationship = useFamilyStore((s) => s.addRelationship);
   const relationships = useFamilyStore((s) => s.relationships);
+  const loadFromSupabase = useFamilyStore((s) => s.loadFromSupabase);
 
   const [fromId, setFromId] = useState<string | null>(null);
   const [toId, setToId] = useState<string | null>(null);
@@ -37,6 +38,8 @@ export function RelationshipScreen() {
       });
 
       addRelationship(rel);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) await loadFromSupabase(user.id);
       setFromId(null);
       setToId(null);
       Alert.alert('Success', 'Relationship added');
