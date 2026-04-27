@@ -35,4 +35,4 @@ See `src/types/index.ts` + `supabase/schema.sql`
 Copy `.env.example` to `.env` and fill in Supabase credentials.
 
 ## Session Carry-Over
-Last session ended: TreeVisualizer has zoom/pan. @shopify/react-native-skia installed. All features pushed (commit 0d578f8).
+Last session: Store sync + auto-refresh after create. Commit 4d024dd pushed.
