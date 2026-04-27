@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { View, FlatList, Text, Button, StyleSheet, ActivityIndicator, Alert } from 'react-native';
+import { View, FlatList, Text, Button, StyleSheet, ActivityIndicator, Alert, Modal } from 'react-native';
 import { useFamilyStore } from '../store/useFamilyStore';
 import { supabase } from '../services/supabase';
+import { EditMemberScreen } from './EditMemberScreen';
 
 export function MemberListScreen() {
   const members = useFamilyStore((s) => s.members);
@@ -10,6 +11,7 @@ export function MemberListScreen() {
   const setSelectedMember = useFamilyStore((s) => s.setSelectedMember);
 
   const [loading, setLoading] = useState(true);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   useEffect(() => {
     loadMembers();
@@ -73,7 +75,8 @@ export function MemberListScreen() {
               <Text className="text-lg font-semibold">{item.name}</Text>
               {item.dob && <Text className="text-gray-600">DOB: {item.dob}</Text>}
               {item.gender && <Text className="text-gray-600">Gender: {item.gender}</Text>}
-              <View className="flex-row mt-2">
+              <View className="flex-row mt-2 gap-2">
+                <Button title="Edit" onPress={() => setEditingId(item.id)} />
                 <Button title="Select" onPress={() => setSelectedMember(item.id)} />
                 <Button title="Delete" color="#ff3b30" onPress={() => handleDelete(item.id)} />
               </View>
@@ -81,6 +84,10 @@ export function MemberListScreen() {
           )}
         />
       )}
+
+      <Modal visible={!!editingId} animationType="slide" presentationStyle="pageSheet">
+        {editingId && <EditMemberScreen memberId={editingId} onDone={() => setEditingId(null)} />}
+      </Modal>
     </View>
   );
 }
