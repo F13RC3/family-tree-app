@@ -15,7 +15,7 @@ interface NodeProps {
   selected?: boolean;
 }
 
-function TreeNode({ node, x, y, selected }: NodeProps) {
+function TreeNodeView({ node, x, y, selected }: NodeProps) {
   return (
     <Group>
       <Circle
@@ -92,7 +92,7 @@ export function TreeVisualizer() {
 
       return (
         <Group key={node.id}>
-          <TreeNode node={node} x={x} y={y} selected={isSelected} />
+          <TreeNodeView node={node} x={x} y={y} selected={isSelected} />
           {node.children.map((child, ci) => {
             const childX = x + spacing * (ci - node.children.length / 2 + 0.5);
             const childY = y + LEVEL_HEIGHT;
