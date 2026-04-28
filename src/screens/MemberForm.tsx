@@ -32,7 +32,7 @@ export function MemberForm({ onSuccess }: Props) {
       if (!user) throw new Error('Not authenticated');
 
       const member = await MemberAPI.create({
-        user_id: user.id,
+        userId: user.id,
         name,
         dob: dob || undefined,
         gender,

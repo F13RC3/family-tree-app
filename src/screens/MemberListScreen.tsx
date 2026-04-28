@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, FlatList, Text, Button, StyleSheet, ActivityIndicator, Alert, Modal } from 'react-native';
 import { useFamilyStore } from '../store/useFamilyStore';
-import { supabase } from '../services/supabase';
+import { supabase, MemberAPI } from '../services/supabase';
 import { EditMemberScreen } from './EditMemberScreen';
 
 export function MemberListScreen() {

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { View, Dimensions, Text } from 'react-native';
-import { Canvas, Circle, Line, Group, useTouchHandler, Rect } from '@shopify/react-native-skia';
+import { View, Dimensions, Text, PanResponder } from 'react-native';
+import { Canvas, Circle, Line, Group, Rect } from '@shopify/react-native-skia';
 import { useFamilyStore } from '../store/useFamilyStore';
 import { TreeNode } from '../types';
 
@@ -65,20 +65,22 @@ export function TreeVisualizer() {
   const [scale, setScale] = useState(1);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
 
-  const touchHandler = useTouchHandler({
-    onBegin: () => {},
-    onStart: () => {},
-    onMove: (e) => {
-      setOffset((prev) => ({
-        x: prev.x + e.translateX,
-        y: prev.y + e.translateY,
-      }));
-    },
-    onEnd: () => {},
-    onPinch: (e) => {
-      setScale((prev) => Math.max(0.5, Math.min(3, prev * e.scale)));
-    },
-  });
+  const offsetRef = React.useRef({ x: 0, y: 0 });
+
+  const panResponder = React.useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onPanResponderGrant: () => {
+        offsetRef.current = offset;
+      },
+      onPanResponderMove: (evt, gestureState) => {
+        setOffset({
+          x: offsetRef.current.x + gestureState.dx,
+          y: offsetRef.current.y + gestureState.dy,
+        });
+      },
+    })
+  ).current;
 
   const renderTree = (nodes: TreeNode[], depth = 0, xOffset = 0): React.ReactNode => {
     if (nodes.length === 0) return null;
@@ -117,10 +119,9 @@ export function TreeVisualizer() {
   }
 
   return (
-    <View className="flex-1 bg-white">
+    <View className="flex-1 bg-white" {...panResponder.panHandlers}>
       <Canvas
         style={{ flex: 1 }}
-        touchHandler={touchHandler}
       >
         <Group transform={[{ translateX: offset.x }, { translateY: offset.y }, { scale }]}>
           {renderTree(tree)}

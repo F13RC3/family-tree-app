@@ -31,15 +31,14 @@ export function RelationshipScreen() {
       if (!user) throw new Error('Not authenticated');
 
       const rel = await RelationshipAPI.create({
-        user_id: user.id,
-        from_id: fromId,
-        to_id: toId,
+        userId: user.id,
+        fromId: fromId,
+        toId: toId,
         type,
       });
 
       addRelationship(rel);
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) await loadFromSupabase(user.id);
+      await loadFromSupabase(user.id);
       setFromId(null);
       setToId(null);
       Alert.alert('Success', 'Relationship added');
